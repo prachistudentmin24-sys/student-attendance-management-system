@@ -1,32 +1,40 @@
-import axios from "axios";
+import { useState } from "react";
+import api from "../api";
 
-function Attendance(){
+function Attendance() {
+  const [loading, setLoading] = useState(false);
 
-    const markAttendance = async()=>{
+  const markAttendance = async () => {
+    setLoading(true);
 
-        await axios.post(
-            "http://localhost:5000/api/attendance/mark",
-            {},
-            {
-                headers:{
-                    Authorization:
-                    localStorage.getItem("token")
-                }
-            }
-        );
+    try {
+      const res = await api.post(
+        "/attendance/mark",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      );
 
-        alert("Attendance Marked");
+      alert(res.data.message);
+    } catch (err) {
+      alert(err.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    return(
-        <>
-            <h1>Attendance</h1>
+  return (
+    <>
+      <h1>Attendance</h1>
 
-            <button onClick={markAttendance}>
-                Mark Present
-            </button>
-        </>
-    )
+      <button onClick={markAttendance} disabled={loading}>
+        {loading ? "Marking..." : "Mark Present"}
+      </button>
+    </>
+  );
 }
 
 export default Attendance;
